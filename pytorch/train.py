@@ -7,7 +7,7 @@ import torch.nn.functional as F
 from model import Net
 import mlflow
 import mlflow.pytorch
-from my_bento_service import MyService
+from bento_service import PytorchService
 
 
 transform = transforms.Compose(
@@ -102,12 +102,10 @@ print('Accuracy of the network on the 10000 test images: %d %%' % (
 
 # torch.jit.save(net, 'model.pt')
 
-# pytorch_service = PytorchImageClassifier()
-# pytorch_service.pack('net', net)
-# pytorch_service.save()
 
-
-
-svc = MyService()
+svc = PytorchService()
 svc.pack('net', net)
 svc.save()
+
+
+

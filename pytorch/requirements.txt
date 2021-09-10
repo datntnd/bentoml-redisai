@@ -1,0 +1,6 @@
+bentoml==0.13.1
+torch==1.9.0
+numpy==1.19.5
+torchvision==0.10.0
+scikit-learn==0.24.2
+redisai==1.2.0

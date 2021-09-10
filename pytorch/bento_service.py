@@ -1,6 +1,6 @@
 # my_bento_service.py
 
-from my_model_artifact import MyModelArtifact
+from redisai_artifact import RedisaiArtifact
 from bentoml import BentoService, env, api, artifacts
 from bentoml.adapters import JsonInput,FileInput
 import bentoml
@@ -15,9 +15,9 @@ from PIL import Image
 classes = ('plane', 'car', 'bird', 'cat',
            'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
 
-@bentoml.env(pip_packages=['torch', 'numpy', 'torchvision', 'scikit-learn', 'ml2rt', 'redisai'])
-@artifacts([MyModelArtifact('net')])
-class MyService(bentoml.BentoService):
+@bentoml.env(pip_packages=['torch', 'numpy', 'torchvision', 'scikit-learn', 'redisai'])
+@artifacts([RedisaiArtifact('net')])
+class PytorchService(bentoml.BentoService):
 
     @bentoml.utils.cached_property
     def transform(self):
