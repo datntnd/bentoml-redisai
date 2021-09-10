@@ -28,7 +28,7 @@ python train.py
 - Run bentoml serve
 ```
 bentoml serve ImageTFService:latest --enable-microbatch
-``
+```
 
 # Warning:
 -  Python 3.8 support requires TensorFlow 2.2 or later and dont cant use tf v1
