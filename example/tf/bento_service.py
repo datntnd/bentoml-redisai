@@ -19,7 +19,7 @@ class_idx = json.load(open(os.path.join(base_path,"data/imagenet_classes.json"))
 # in call artifacts line 34, name must correspond to initialization (here is 'model').
 # type input redisai in float so here use np.float32 not np.float16
 
-@bentoml.env(pip_dependencies=['tensorflow', 'numpy', 'scikit-image'])
+@bentoml.env(pip_dependencies=['tensorflow', 'numpy', 'scikit-image', 'redisai'])
 @bentoml.artifacts([RedisaiArtifact('model', 'tf', 'images', 'output')])
 class ImageTFService(bentoml.BentoService):
  
