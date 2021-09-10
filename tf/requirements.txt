@@ -1,0 +1,7 @@
+bentoml==0.13.1
+numpy==1.19.5
+scikit-learn==0.24.2
+redisai==1.2.0
+tensorflow==1.15.0
+scikit-image==0.18.3
+tensorflow-hub-0.12.0

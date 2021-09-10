@@ -1,6 +1,5 @@
 # my_model_artifact.py
 import os
-import json
 from bentoml.exceptions import (
     InvalidArgument,
     MissingDependencyException,
@@ -8,38 +7,29 @@ from bentoml.exceptions import (
 
 from bentoml.service.artifacts import BentoServiceArtifact
 from redisai import Client
-import config
 
-# SUPPORTED_DEPLO_FLAVORS = ['pytorch', 'tensorflow']
-# flavor2backend = {
-#     'pytorch': 'torch',
-#     'tensorflow': 'tf'}
 
 class Config(dict):
     def __init__(self):
         super().__init__()
-        self['host'] = config.REDIS_HOST
-        self['port'] = config.REDIS_PORT
-        self['username'] = config.REDIS_USERNAME
-        self['password'] = config.REDIS_PASSWORD
-        self['db'] = config.REDIS_DB
+        self['host'] = 'localhost'
+        self['port'] = 6379
+        self['username'] = None
+        self['password'] = None
+        self['db'] = 0
 
 class RedisaiArtifact(BentoServiceArtifact):
-    def __init__(self, name, input = None, output=None):
+    def __init__(self, name, backend='torch', input = None, output=None):
         super(RedisaiArtifact, self).__init__(name)
-        self.con = Client(host='localhost', port=6379, db=0)
+        server_config = Config()
+        self.con = Client(**server_config)
         self._input=input
         self._output=output
+        self._backend= backend
+        self._device = None
         self._model = None
-        self._backend= None
-        self._file_extension = None
-
-    def pack(self, model,  backend='torch', device='cpu'):
-        print("backend", backend)
-        self._backend = backend
-        self._device = device
-
         if self._backend == 'torch':
+            self._file_extension = '.pt'
             try:
                 import torch
             except ImportError:
@@ -47,21 +37,18 @@ class RedisaiArtifact(BentoServiceArtifact):
                     "torch package is required to use RedisaiArtifact"
                 )
 
-            if not isinstance(model, torch.nn.Module):
-                raise InvalidArgument(
-                    "RedisaiArtifact can only pack type \
-                    'torch.nn.Module' or 'torch.jit.ScriptModule'"
-                )
         elif self._backend == 'tf':
+            self._file_extension = '.pb'
             try:
                 import tensorflow as tf
-
-                
             except ImportError:
                 raise MissingDependencyException(
                     "Tensorflow package is required to use RedisaiArtifact."
                 )
+        
 
+    def pack(self, model, device='cpu'):
+        self._device = device
         self._model = model
         
         return self
@@ -72,24 +59,17 @@ class RedisaiArtifact(BentoServiceArtifact):
     def save(self, dst):
         if self._backend == 'torch':
             import torch
-
-            self._file_extension = '.pt'
             torch.jit.save(self._model, self._file_path(dst))
         elif self._backend == 'tf':
             import tensorflow as tf
-            self._file_extension = '.pt'
 
             TF2 = tf.__version__.startswith('2')
-            # test with tf 1
-            TF2 = False
             if TF2:
                 tf.io.write_graph(graph_or_graph_def=self._model.graph,
                   logdir=dst,
                   name= self.name + self._file_extension,
                   as_text=False)
             else:
-                import tensorflow.compat.v1 as tf
-                tf.compat.v1.disable_eager_execution()
                 tf.train.write_graph(self._model, dst, self.name + self._file_extension, as_text=False)
 
             
