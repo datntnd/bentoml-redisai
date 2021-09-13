@@ -15,7 +15,7 @@ from PIL import Image
 classes = ('plane', 'car', 'bird', 'cat',
            'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
 
-@bentoml.env(pip_packages=['torch', 'numpy', 'torchvision', 'redisai'])
+@env(pip_packages=['torch', 'numpy', 'torchvision', 'redisai'])
 @artifacts([RedisaiArtifact('net')])
 class PytorchService(bentoml.BentoService):
 
